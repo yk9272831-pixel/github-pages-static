@@ -1,0 +1,896 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>王者荣耀意识测试</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #0b0d11;
+        --panel: rgba(17, 20, 27, 0.88);
+        --panel-solid: #151923;
+        --line: rgba(255, 255, 255, 0.12);
+        --text: #f7f1e4;
+        --muted: #b9b3a7;
+        --gold: #d8ad5f;
+        --red: #b94a42;
+        --teal: #5ab7a8;
+        --violet: #9a8ce8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        min-height: 100%;
+      }
+
+      body {
+        color: var(--text);
+        background:
+          linear-gradient(180deg, rgba(11, 13, 17, 0.64), #0b0d11 54%),
+          url("./map-bg.jpg") center top / cover fixed;
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+          "Microsoft YaHei", sans-serif;
+        letter-spacing: 0;
+      }
+
+      button {
+        min-height: 44px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.06);
+        color: var(--text);
+        font: inherit;
+        cursor: pointer;
+      }
+
+      button:disabled {
+        cursor: not-allowed;
+        opacity: 0.48;
+      }
+
+      .app {
+        width: min(720px, 100%);
+        min-height: 100vh;
+        margin: 0 auto;
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        padding: 4px 0 14px;
+        text-align: center;
+      }
+
+      .brand {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        min-width: 0;
+      }
+
+      .brand img {
+        width: 42px;
+        height: 42px;
+        border-radius: 8px;
+      }
+
+      .brand-title {
+        min-width: 0;
+      }
+
+      .brand-title strong {
+        display: block;
+        font-size: 20px;
+        line-height: 1.2;
+      }
+
+      .brand-title span {
+        display: none;
+        margin-top: 3px;
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .shell {
+        flex: 1;
+        display: grid;
+        align-content: center;
+      }
+
+      .card {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel);
+        box-shadow: 0 18px 46px rgba(0, 0, 0, 0.36);
+        backdrop-filter: blur(16px);
+        overflow: hidden;
+      }
+
+      .hero {
+        padding: 22px;
+        text-align: center;
+      }
+
+      .hero-logo {
+        width: min(300px, 80%);
+        max-height: 96px;
+        object-fit: contain;
+        display: block;
+        margin: 0 auto 20px;
+      }
+
+      .hero-row {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 18px;
+      }
+
+      .hero-row img {
+        width: 42px;
+        height: 42px;
+        border: 1px solid rgba(216, 173, 95, 0.5);
+        border-radius: 8px;
+        object-fit: cover;
+        background: rgba(0, 0, 0, 0.28);
+      }
+
+      h1 {
+        margin: 0;
+        font-size: 28px;
+        line-height: 1.18;
+      }
+
+      .lead {
+        margin: 12px 0 18px;
+        color: var(--muted);
+        font-size: 15px;
+        line-height: 1.7;
+      }
+
+      .stat-row {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        margin: 18px 0;
+      }
+
+      .stat {
+        padding: 10px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.05);
+        text-align: center;
+      }
+
+      .stat b {
+        display: block;
+        color: #ffe1a4;
+        font-size: 18px;
+      }
+
+      .stat span {
+        display: block;
+        margin-top: 4px;
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .primary {
+        width: 100%;
+        border-color: rgba(216, 173, 95, 0.72);
+        background: linear-gradient(180deg, #f0c979, #ad7534);
+        color: #1a1008;
+        font-weight: 700;
+      }
+
+      .quiz-head {
+        padding: 16px;
+        border-bottom: 1px solid var(--line);
+        background: rgba(0, 0, 0, 0.18);
+      }
+
+      .progress-line {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 10px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .bar {
+        height: 6px;
+        overflow: hidden;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.1);
+      }
+
+      .bar-fill {
+        height: 100%;
+        width: 0;
+        background: linear-gradient(90deg, var(--gold), var(--teal));
+        transition: width 180ms ease;
+      }
+
+      .quiz-body {
+        padding: 18px 16px 16px;
+      }
+
+      .tagline {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-bottom: 12px;
+      }
+
+      .tag {
+        padding: 4px 8px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        color: var(--muted);
+        background: rgba(255, 255, 255, 0.05);
+        font-size: 12px;
+      }
+
+      .question {
+        margin: 0 0 16px;
+        font-size: 19px;
+        line-height: 1.55;
+      }
+
+      .options {
+        display: grid;
+        gap: 10px;
+      }
+
+      .option {
+        display: grid;
+        grid-template-columns: 34px 1fr;
+        gap: 10px;
+        align-items: start;
+        min-height: 58px;
+        padding: 12px;
+        text-align: left;
+      }
+
+      .option.selected {
+        border-color: rgba(216, 173, 95, 0.9);
+        background: rgba(216, 173, 95, 0.14);
+      }
+
+      .letter {
+        display: grid;
+        width: 30px;
+        height: 30px;
+        place-items: center;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.1);
+        color: #ffe1a4;
+        font-weight: 700;
+      }
+
+      .quiz-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-top: 16px;
+      }
+
+      .secondary {
+        color: var(--muted);
+      }
+
+      .lane-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .lane {
+        min-height: 78px;
+        padding: 12px;
+        text-align: left;
+      }
+
+      .lane.selected {
+        border-color: rgba(90, 183, 168, 0.92);
+        background: rgba(90, 183, 168, 0.16);
+      }
+
+      .lane b {
+        display: block;
+        font-size: 16px;
+      }
+
+      .lane span {
+        display: block;
+        margin-top: 6px;
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.4;
+      }
+
+      .result {
+        padding: 20px 16px;
+      }
+
+      .score-board {
+        display: grid;
+        grid-template-columns: 120px 1fr;
+        gap: 16px;
+        align-items: center;
+        margin-bottom: 16px;
+      }
+
+      .rank-img {
+        width: 110px;
+        height: 110px;
+        object-fit: contain;
+      }
+
+      .score-num {
+        margin: 0;
+        color: #ffe1a4;
+        font-size: 34px;
+        line-height: 1;
+      }
+
+      .rank-title {
+        margin: 8px 0 6px;
+        font-size: 20px;
+      }
+
+      .rank-text {
+        margin: 0;
+        color: var(--muted);
+        font-size: 14px;
+        line-height: 1.6;
+      }
+
+      .breakdown {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        margin: 16px 0;
+      }
+
+      .breakdown .stat b {
+        font-size: 16px;
+      }
+
+      .rank-strip {
+        display: flex;
+        gap: 8px;
+        margin: 14px -16px 16px;
+        padding: 0 16px 4px;
+        overflow-x: auto;
+        overscroll-behavior-x: contain;
+        scroll-snap-type: x proximity;
+        scrollbar-width: thin;
+      }
+
+      .rank-mark {
+        display: flex;
+        flex: 0 0 auto;
+        width: 92px;
+        flex-direction: column;
+        gap: 5px;
+        align-items: center;
+        justify-content: center;
+        min-height: 90px;
+        padding: 8px 6px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.05);
+        text-align: center;
+        scroll-snap-align: center;
+        opacity: 0.42;
+        filter: grayscale(1);
+      }
+
+      .rank-mark.active {
+        border-color: rgba(216, 173, 95, 0.82);
+        background: rgba(216, 173, 95, 0.13);
+        opacity: 1;
+        filter: none;
+        box-shadow: 0 0 22px rgba(216, 173, 95, 0.22);
+      }
+
+      .rank-mark img {
+        width: 38px;
+        height: 38px;
+        object-fit: contain;
+      }
+
+      .rank-mark b {
+        display: block;
+        font-size: 12px;
+        line-height: 1.15;
+      }
+
+      .rank-mark span {
+        color: var(--muted);
+        font-size: 10px;
+      }
+
+      .rank-wall-title {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-top: 14px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .rank-wall-title b {
+        color: var(--text);
+        font-size: 14px;
+      }
+
+      .review-list {
+        display: grid;
+        gap: 8px;
+        margin: 14px 0 0;
+      }
+
+      .review {
+        padding: 10px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.05);
+      }
+
+      .review strong {
+        display: block;
+        margin-bottom: 5px;
+        color: #ffe1a4;
+      }
+
+      .review span {
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.5;
+      }
+
+      .review-question {
+        margin: 0 0 8px;
+        color: var(--text);
+        font-size: 14px;
+        line-height: 1.55;
+      }
+
+      .share-tip {
+        min-height: 20px;
+        margin: 10px 0 0;
+        color: #ffe1a4;
+        font-size: 13px;
+        text-align: center;
+      }
+
+      @media (max-width: 520px) {
+        .app {
+          padding: 12px;
+        }
+
+        .hero {
+          padding: 18px 14px;
+        }
+
+        h1 {
+          font-size: 24px;
+        }
+
+        .stat-row,
+        .breakdown {
+          grid-template-columns: 1fr;
+        }
+
+        .quiz-actions {
+          grid-template-columns: 1fr;
+        }
+
+        .score-board {
+          grid-template-columns: 84px 1fr;
+        }
+
+        .rank-img {
+          width: 76px;
+          height: 76px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <header class="topbar">
+        <div class="brand">
+          <img src="./app-icon.png" alt="" />
+          <div class="brand-title">
+            <strong>王者意识测试</strong>
+            <span id="miniStatus">峡谷决策抽题</span>
+          </div>
+        </div>
+      </header>
+
+      <main class="shell" id="app"></main>
+    </div>
+
+    <script src="./question-bank.js"></script>
+    <script>
+      const lanes = ["对抗路", "中路", "发育路", "打野", "游走"];
+      const laneNotes = {
+        对抗路: "边线、传送、切入",
+        中路: "线权、支援、视野",
+        发育路: "发育、站位、输出",
+        打野: "节奏、控龙、反蹲",
+        游走: "保护、开团、视野",
+      };
+      const state = {
+        step: 0,
+        selectedLane: "",
+        selectedOption: "",
+        answers: [],
+        questionPlan: [],
+        laneQuestions: [],
+        history: [],
+      };
+
+      const app = document.querySelector("#app");
+      const miniStatus = document.querySelector("#miniStatus");
+      function shuffle(items) {
+        const arr = [...items];
+        for (let i = arr.length - 1; i > 0; i -= 1) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+      }
+
+      function pick(items, count, exclude = new Set()) {
+        return shuffle(items.filter((item) => !exclude.has(item.id))).slice(0, count);
+      }
+
+      function buildPlan() {
+        const questions = window.QUESTION_BANK.questions;
+        const common = questions.filter((q) => q.lane === "通识");
+        const laneMixed = questions.filter((q) => lanes.includes(q.lane));
+        const firstCommon = pick(common, 3);
+        const used = new Set(firstCommon.map((q) => q.id));
+        const mixed = pick(laneMixed, 2, used);
+        mixed.forEach((q) => used.add(q.id));
+        return shuffle([...firstCommon, ...mixed]);
+      }
+
+      function start() {
+        state.step = 0;
+        state.selectedLane = "";
+        state.selectedOption = "";
+        state.answers = [];
+        state.history = [];
+        state.questionPlan = buildPlan();
+        state.laneQuestions = [];
+        render();
+      }
+
+      function getCurrentQuestion() {
+        if (state.step < 5) return state.questionPlan[state.step];
+        if (state.step > 5) return state.laneQuestions[state.step - 6];
+        return null;
+      }
+
+      function progressText() {
+        if (state.step < 5) return `第 ${state.step + 1} / 10 题`;
+        if (state.step === 5) return "选择分路";
+        return `第 ${state.step} / 10 题`;
+      }
+
+      function renderFrame(content) {
+        const percent = Math.min(100, (state.step / 10) * 100);
+        app.innerHTML = `
+          <section class="card">
+            <div class="quiz-head">
+              <div class="progress-line">
+                <span>${progressText()}</span>
+                <span>${state.selectedLane || "未选择分路"}</span>
+              </div>
+              <div class="bar"><div class="bar-fill" style="width:${percent}%"></div></div>
+            </div>
+            ${content}
+          </section>
+        `;
+      }
+
+      function renderHome() {
+        miniStatus.textContent = "";
+        app.innerHTML = `
+          <section class="card hero">
+            <img class="hero-logo" src="./logo.png" alt="王者荣耀" />
+            <div class="hero-row">
+              <img src="./hero-luban.png" alt="" />
+              <img src="./hero-libai.png" alt="" />
+              <img src="./hero-diaochan.jpg" alt="" />
+              <img src="./spell-flash.png" alt="" />
+              <img src="./spell-smite.png" alt="" />
+            </div>
+            <h1>测一局你的峡谷意识</h1>
+            <div class="stat-row">
+              <div class="stat"><b>3</b><span>通识局势题</span></div>
+              <div class="stat"><b>2</b><span>分路混合题</span></div>
+              <div class="stat"><b>5</b><span>专项分路题</span></div>
+            </div>
+            <button class="primary" type="button" id="startBtn">开始测试</button>
+          </section>
+        `;
+        document.querySelector("#startBtn").addEventListener("click", () => {
+          state.step = 0;
+          render();
+        });
+      }
+
+      function renderQuestion() {
+        const q = getCurrentQuestion();
+        miniStatus.textContent = "";
+        const options = q.options
+          .map((option) => `
+            <button class="option ${state.selectedOption === option.id ? "selected" : ""}" type="button" data-option="${option.id}">
+              <span class="letter">${option.id}</span>
+              <span>${option.text}</span>
+            </button>
+          `)
+          .join("");
+
+        renderFrame(`
+          <div class="quiz-body">
+            <p class="question">${q.question}</p>
+            <div class="options">${options}</div>
+            <div class="quiz-actions">
+              <button class="secondary" type="button" id="backBtn" ${state.step === 0 ? "disabled" : ""}>上一题</button>
+              <button class="primary" type="button" disabled>下一题</button>
+            </div>
+          </div>
+        `);
+
+        document.querySelectorAll("[data-option]").forEach((button) => {
+          button.addEventListener("click", () => {
+            state.selectedOption = button.dataset.option;
+            renderQuestion();
+            window.setTimeout(nextFromQuestion, 180);
+          });
+        });
+        document.querySelector("#backBtn").addEventListener("click", back);
+      }
+
+      function renderLaneSelect() {
+        miniStatus.textContent = "";
+        const buttons = lanes
+          .map((lane) => `
+            <button class="option ${state.selectedLane === lane ? "selected" : ""}" type="button" data-lane="${lane}">
+              <span class="letter">${lane.slice(0, 1)}</span>
+              <span><b>${lane}</b><br><small>${laneNotes[lane]}</small></span>
+            </button>
+          `)
+          .join("");
+        renderFrame(`
+          <div class="quiz-body">
+            <p class="question">你平时常玩哪个分路？</p>
+            <div class="options">${buttons}</div>
+            <div class="quiz-actions">
+              <button class="secondary" type="button" id="backBtn">上一题</button>
+              <button class="primary" type="button" id="laneNextBtn" ${state.selectedLane ? "" : "disabled"}>进入专项</button>
+            </div>
+          </div>
+        `);
+
+        document.querySelectorAll("[data-lane]").forEach((button) => {
+          button.addEventListener("click", () => {
+            state.selectedLane = button.dataset.lane;
+            renderLaneSelect();
+          });
+        });
+        document.querySelector("#backBtn").addEventListener("click", back);
+        document.querySelector("#laneNextBtn").addEventListener("click", () => {
+          const used = new Set([...state.questionPlan.map((q) => q.id), ...state.answers.map((a) => a.questionId)]);
+          const pool = window.QUESTION_BANK.questions.filter((q) => q.lane === state.selectedLane);
+          state.laneQuestions = pick(pool, 5, used);
+          state.step = 6;
+          state.selectedOption = "";
+          render();
+        });
+      }
+
+      function nextFromQuestion() {
+        const q = getCurrentQuestion();
+        const option = q.options.find((item) => item.id === state.selectedOption);
+        const displayScore = ({ 5: 10, 3: 6, 1: 4, 0: 0 })[Number(option.score)] ?? 0;
+        state.answers = state.answers.filter((answer) => answer.step !== state.step);
+        state.answers.push({
+          step: state.step,
+          questionId: q.id,
+          lane: q.lane,
+          tags: q.tags,
+          score: displayScore,
+          rawScore: Number(option.score),
+          max: 10,
+        });
+        state.history = state.history.filter((item) => item.step !== state.step);
+        state.history.push({
+          step: state.step,
+          questionId: q.id,
+          lane: q.lane,
+          type: q.type,
+          question: q.question,
+          optionId: option.id,
+          optionText: option.text,
+          score: displayScore,
+          rawScore: Number(option.score),
+        });
+        state.step += 1;
+        state.selectedOption = "";
+        render();
+      }
+
+      function back() {
+        if (state.step === 0) return;
+        state.step -= 1;
+        const previous = state.answers.find((answer) => answer.step === state.step);
+        state.answers = state.answers.filter((answer) => answer.step !== state.step);
+        state.history = state.history.filter((item) => item.step !== state.step);
+        state.selectedOption = previous ? window.QUESTION_BANK.questions
+          .find((q) => q.id === previous.questionId)
+          ?.options.find((option) => Number(option.score) === previous.rawScore)?.id || "" : "";
+        render();
+      }
+
+      const rankMarks = [
+        { name: "倔强青铜", min: 0, max: 39, image: "rank-bronze.png" },
+        { name: "秩序白银", min: 40, max: 49, image: "rank-silver.png" },
+        { name: "荣耀黄金", min: 50, max: 59, image: "rank-gold.png" },
+        { name: "尊贵铂金", min: 60, max: 69, image: "rank-platinum.png" },
+        { name: "永恒钻石", min: 70, max: 79, image: "rank-diamond.png" },
+        { name: "至尊星耀", min: 80, max: 87, image: "rank-star.png" },
+        { name: "最强王者", min: 88, max: 94, image: "rank-master.png" },
+        { name: "荣耀王者", min: 95, max: 99, image: "rank-honor.png" },
+        { name: "传奇王者", min: 100, max: 100, image: "rank-legend.png" },
+      ];
+
+      function rank(percent) {
+        const mark = rankMarks.find((item) => percent >= item.min && percent <= item.max) || rankMarks[0];
+        const copy = percent === 100
+          ? "满分传奇王者，决策几乎没有明显破绽。"
+          : percent >= 95
+            ? "荣耀王者水平，大局判断和关键节点都很稳。"
+            : percent >= 88
+              ? "王者级意识，资源和进退节奏掌握得不错。"
+              : percent >= 70
+                ? "基础扎实，但部分局势还会被眼前收益带走。"
+                : "继续把兵线、视野和资源时间练成习惯。";
+        return { ...mark, text: copy };
+      }
+
+      function renderResult() {
+        miniStatus.textContent = "测试完成";
+        const total = state.answers.reduce((sum, item) => sum + item.score, 0);
+        const max = state.answers.reduce((sum, item) => sum + item.max, 0);
+        const rankInfo = rank(total);
+        const commonScore = state.answers.filter((a) => a.step < 5 && a.lane === "通识").reduce((sum, a) => sum + a.score, 0);
+        const mixedScore = state.answers.filter((a) => a.step < 5 && a.lane !== "通识").reduce((sum, a) => sum + a.score, 0);
+        const laneScore = state.answers.filter((a) => a.step > 5).reduce((sum, a) => sum + a.score, 0);
+        const rankHtml = rankMarks
+          .map((item) => `
+            <div class="rank-mark ${item.name === rankInfo.name ? "active" : ""}">
+              <img src="./${item.image}" alt="" />
+              <div>
+                <b>${item.name}</b>
+                <span>${item.min === item.max ? `${item.min}分` : `${item.min}-${item.max}分`}</span>
+              </div>
+            </div>
+          `)
+          .join("");
+        const shareText = `我刚测了王者荣耀意识测试，拿到${total}分，段位是${rankInfo.name}！这套题有全局判断、分路专项和真实对局选择，挺能看出一个人到底是会打架还是会赢游戏。你也来测一下自己的峡谷意识吧：${location.href.split("#")[0].split("?")[0]}`;
+
+        app.innerHTML = `
+          <section class="card result">
+            <div class="score-board">
+              <img class="rank-img" src="./${rankInfo.image}" alt="" />
+              <div>
+                <p class="score-num">${total}分</p>
+                <h1 class="rank-title">${rankInfo.name}</h1>
+                <p class="rank-text">${rankInfo.text}</p>
+              </div>
+            </div>
+            <div class="breakdown">
+              <div class="stat"><b>${commonScore}/30</b><span>通识题</span></div>
+              <div class="stat"><b>${mixedScore}/20</b><span>混合题</span></div>
+              <div class="stat"><b>${laneScore}/50</b><span>${state.selectedLane}专项</span></div>
+            </div>
+            <div class="rank-wall-title">
+              <b>峡谷意识荣誉墙</b>
+            </div>
+            <div class="rank-strip">${rankHtml}</div>
+            <div class="quiz-actions">
+              <button class="secondary" type="button" id="reviewBtn">复盘记录</button>
+              <button class="secondary" type="button" id="shareBtn">分享结果</button>
+              <button class="primary" type="button" id="againBtn">重新抽题</button>
+            </div>
+            <p class="share-tip" id="shareTip"></p>
+          </section>
+        `;
+        document.querySelector("#againBtn").addEventListener("click", start);
+        document.querySelector("#reviewBtn").addEventListener("click", renderReview);
+        document.querySelector("#shareBtn").addEventListener("click", () => shareResult(shareText));
+      }
+
+      async function shareResult(text) {
+        const tip = document.querySelector("#shareTip");
+        try {
+          await navigator.clipboard.writeText(text);
+          tip.textContent = "已复制分享文案，快发给队友测一下。";
+        } catch {
+          tip.textContent = "复制失败，可以长按页面地址分享给朋友。";
+        }
+      }
+
+      function renderReview() {
+        miniStatus.textContent = "答题复盘";
+        const rows = [...state.history]
+          .sort((a, b) => a.step - b.step)
+          .map((item, index) => `
+            <div class="review">
+              <strong>第 ${index + 1} 题 · ${item.lane}</strong>
+              <p class="review-question">${item.question}</p>
+              <span>你的选择：${item.optionId}. ${item.optionText}</span>
+              <span style="display:block;margin-top:4px">本题得分：${item.score}/10</span>
+            </div>
+          `)
+          .join("");
+        app.innerHTML = `
+          <section class="card result">
+            <h1 class="rank-title">答题记录</h1>
+            <p class="rank-text">这里只保留本次题目和你的选择记录。</p>
+            <div class="review-list">${rows}</div>
+            <div class="quiz-actions">
+              <button class="secondary" type="button" id="resultBtn">返回结算</button>
+              <button class="primary" type="button" id="againBtn">重新抽题</button>
+            </div>
+          </section>
+        `;
+        document.querySelector("#resultBtn").addEventListener("click", renderResult);
+        document.querySelector("#againBtn").addEventListener("click", start);
+      }
+
+      function render() {
+        if (!window.QUESTION_BANK) {
+          app.innerHTML = `<section class="card hero"><h1>题库加载失败</h1><p class="lead">请确认 question-bank.js 和 index.html 在同一层目录。</p></section>`;
+          return;
+        }
+        if (state.step === -1) return renderHome();
+        if (state.step < 5) return renderQuestion();
+        if (state.step === 5) return renderLaneSelect();
+        if (state.step < 11) return renderQuestion();
+        return renderResult();
+      }
+
+      state.step = -1;
+      start();
+      state.step = -1;
+      renderHome();
+    </script>
+  </body>
+</html>
