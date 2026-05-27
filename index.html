@@ -375,31 +375,25 @@
       }
 
       .rank-strip {
-        display: flex;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 8px;
-        margin: 14px -16px 16px;
-        padding: 0 16px 4px;
-        overflow-x: auto;
-        overscroll-behavior-x: contain;
-        scroll-snap-type: x proximity;
-        scrollbar-width: thin;
+        margin: 14px 0 16px;
       }
 
       .rank-mark {
         display: flex;
-        flex: 0 0 auto;
-        width: 92px;
-        flex-direction: column;
-        gap: 5px;
+        gap: 8px;
         align-items: center;
-        justify-content: center;
-        min-height: 90px;
-        padding: 8px 6px;
+        min-height: 58px;
+        padding: 8px;
         border: 1px solid var(--line);
         border-radius: 8px;
-        background: rgba(255, 255, 255, 0.05);
-        text-align: center;
-        scroll-snap-align: center;
+        background: rgba(255, 255, 255, 0.045);
+        backdrop-filter: blur(12px);
+        box-shadow:
+          inset 0 0 0 1px rgba(255, 255, 255, 0.04),
+          0 10px 22px rgba(0, 0, 0, 0.16);
         opacity: 0.42;
         filter: grayscale(1);
       }
@@ -412,9 +406,20 @@
         box-shadow: 0 0 22px rgba(216, 173, 95, 0.22);
       }
 
+      .rank-mark.legend {
+        grid-column: 1 / -1;
+        justify-content: center;
+        min-height: 64px;
+      }
+
+      .rank-mark.legend img {
+        width: 42px;
+        height: 42px;
+      }
+
       .rank-mark img {
-        width: 38px;
-        height: 38px;
+        width: 34px;
+        height: 34px;
         object-fit: contain;
       }
 
@@ -427,6 +432,34 @@
       .rank-mark span {
         color: var(--muted);
         font-size: 10px;
+      }
+
+      .challenge {
+        margin: 0 0 16px;
+        padding: 12px;
+        border: 1px solid rgba(216, 173, 95, 0.5);
+        border-radius: 8px;
+        background: rgba(216, 173, 95, 0.12);
+        color: #ffe1a4;
+        font-size: 14px;
+        line-height: 1.55;
+      }
+
+      .poster {
+        text-align: center;
+      }
+
+      .poster .rank-img {
+        width: 112px;
+        height: 112px;
+        margin: 8px auto 12px;
+      }
+
+      .poster-note {
+        margin: 14px 0 0;
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.6;
       }
 
       .rank-wall-title {
@@ -550,6 +583,7 @@
         questionPlan: [],
         laneQuestions: [],
         history: [],
+        result: null,
       };
 
       const app = document.querySelector("#app");
@@ -584,6 +618,7 @@
         state.selectedOption = "";
         state.answers = [];
         state.history = [];
+        state.result = null;
         state.questionPlan = buildPlan();
         state.laneQuestions = [];
         render();
@@ -619,6 +654,8 @@
 
       function renderHome() {
         miniStatus.textContent = "";
+        const shared = getSharedResult();
+        const challengeHtml = shared ? `<div class="challenge">有人刚测出 <b>${shared.score}分 · ${shared.rank}</b>，正在等你挑战。你可以超过我吗？</div>` : "";
         app.innerHTML = `
           <section class="card hero">
             <img class="hero-logo" src="./logo.png" alt="王者荣耀" />
@@ -630,6 +667,7 @@
               <img src="./spell-smite.png" alt="" />
             </div>
             <h1>测一局你的峡谷意识</h1>
+            ${challengeHtml}
             <div class="stat-row">
               <div class="stat"><b>3</b><span>通识局势题</span></div>
               <div class="stat"><b>2</b><span>分路混合题</span></div>
@@ -764,9 +802,9 @@
         { name: "荣耀黄金", min: 50, max: 59, image: "rank-gold.png" },
         { name: "尊贵铂金", min: 60, max: 69, image: "rank-platinum.png" },
         { name: "永恒钻石", min: 70, max: 79, image: "rank-diamond.png" },
-        { name: "至尊星耀", min: 80, max: 87, image: "rank-star.png" },
-        { name: "最强王者", min: 88, max: 94, image: "rank-master.png" },
-        { name: "荣耀王者", min: 95, max: 99, image: "rank-honor.png" },
+        { name: "至尊星耀", min: 80, max: 84, image: "rank-star.png" },
+        { name: "最强王者", min: 85, max: 89, image: "rank-master.png" },
+        { name: "荣耀王者", min: 90, max: 99, image: "rank-honor.png" },
         { name: "传奇王者", min: 100, max: 100, image: "rank-legend.png" },
       ];
 
@@ -774,9 +812,9 @@
         const mark = rankMarks.find((item) => percent >= item.min && percent <= item.max) || rankMarks[0];
         const copy = percent === 100
           ? "满分传奇王者，决策几乎没有明显破绽。"
-          : percent >= 95
+          : percent >= 90
             ? "荣耀王者水平，大局判断和关键节点都很稳。"
-            : percent >= 88
+            : percent >= 85
               ? "王者级意识，资源和进退节奏掌握得不错。"
               : percent >= 70
                 ? "基础扎实，但部分局势还会被眼前收益带走。"
@@ -784,17 +822,51 @@
         return { ...mark, text: copy };
       }
 
-      function renderResult() {
-        miniStatus.textContent = "测试完成";
+      function baseUrl() {
+        return location.href.split("#")[0].split("?")[0];
+      }
+
+      function encodePayload(payload) {
+        const json = JSON.stringify(payload);
+        const encoded = btoa(unescape(encodeURIComponent(json)));
+        return encoded.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+      }
+
+      function decodePayload(value) {
+        try {
+          const padded = value.replace(/-/g, "+").replace(/_/g, "/").padEnd(Math.ceil(value.length / 4) * 4, "=");
+          return JSON.parse(decodeURIComponent(escape(atob(padded))));
+        } catch {
+          return null;
+        }
+      }
+
+      function getSharedResult() {
+        const params = new URLSearchParams(location.search);
+        const payload = params.get("d");
+        if (!payload) return null;
+        const decoded = decodePayload(payload);
+        if (!decoded || typeof decoded.score !== "number" || !decoded.rank) return null;
+        return decoded;
+      }
+
+      function collectResult() {
         const total = state.answers.reduce((sum, item) => sum + item.score, 0);
         const max = state.answers.reduce((sum, item) => sum + item.max, 0);
         const rankInfo = rank(total);
         const commonScore = state.answers.filter((a) => a.step < 5 && a.lane === "通识").reduce((sum, a) => sum + a.score, 0);
         const mixedScore = state.answers.filter((a) => a.step < 5 && a.lane !== "通识").reduce((sum, a) => sum + a.score, 0);
         const laneScore = state.answers.filter((a) => a.step > 5).reduce((sum, a) => sum + a.score, 0);
+        return { total, max, rankInfo, commonScore, mixedScore, laneScore };
+      }
+
+      function renderResult() {
+        miniStatus.textContent = "测试完成";
+        const { total, rankInfo, commonScore, mixedScore, laneScore } = collectResult();
+        state.result = { total, rank: rankInfo.name, lane: state.selectedLane };
         const rankHtml = rankMarks
           .map((item) => `
-            <div class="rank-mark ${item.name === rankInfo.name ? "active" : ""}">
+            <div class="rank-mark ${item.name === rankInfo.name ? "active" : ""} ${item.name === "传奇王者" ? "legend" : ""}">
               <img src="./${item.image}" alt="" />
               <div>
                 <b>${item.name}</b>
@@ -803,7 +875,9 @@
             </div>
           `)
           .join("");
-        const shareText = `我刚测了王者荣耀意识测试，拿到${total}分，段位是${rankInfo.name}！这套题有全局判断、分路专项和真实对局选择，挺能看出一个人到底是会打架还是会赢游戏。你也来测一下自己的峡谷意识吧：${location.href.split("#")[0].split("?")[0]}`;
+        const encoded = encodePayload({ score: total, rank: rankInfo.name, lane: state.selectedLane, time: Date.now() });
+        const shareUrl = `${baseUrl()}?d=${encoded}`;
+        const shareText = `我刚测了王者荣耀意识测试，拿到${total}分，段位是${rankInfo.name}！这套题有全局判断、分路专项和真实对局选择，挺能看出一个人到底是会打架还是会赢游戏。你可以超过我吗？来测一下：${shareUrl}`;
 
         app.innerHTML = `
           <section class="card result">
@@ -826,6 +900,7 @@
             <div class="rank-strip">${rankHtml}</div>
             <div class="quiz-actions">
               <button class="secondary" type="button" id="reviewBtn">复盘记录</button>
+              <button class="secondary" type="button" id="posterBtn">保存截图</button>
               <button class="secondary" type="button" id="shareBtn">分享结果</button>
               <button class="primary" type="button" id="againBtn">重新抽题</button>
             </div>
@@ -834,6 +909,7 @@
         `;
         document.querySelector("#againBtn").addEventListener("click", start);
         document.querySelector("#reviewBtn").addEventListener("click", renderReview);
+        document.querySelector("#posterBtn").addEventListener("click", renderPoster);
         document.querySelector("#shareBtn").addEventListener("click", () => shareResult(shareText));
       }
 
@@ -865,6 +941,32 @@
             <h1 class="rank-title">答题记录</h1>
             <p class="rank-text">这里只保留本次题目和你的选择记录。</p>
             <div class="review-list">${rows}</div>
+            <div class="quiz-actions">
+              <button class="secondary" type="button" id="resultBtn">返回结算</button>
+              <button class="primary" type="button" id="againBtn">重新抽题</button>
+            </div>
+          </section>
+        `;
+        document.querySelector("#resultBtn").addEventListener("click", renderResult);
+        document.querySelector("#againBtn").addEventListener("click", start);
+      }
+
+      function renderPoster() {
+        miniStatus.textContent = "保存截图";
+        const { total, rankInfo, commonScore, mixedScore, laneScore } = collectResult();
+        app.innerHTML = `
+          <section class="card result poster">
+            <img class="hero-logo" src="./logo.png" alt="王者荣耀" />
+            <img class="rank-img" src="./${rankInfo.image}" alt="" />
+            <p class="score-num">${total}分</p>
+            <h1 class="rank-title">${rankInfo.name}</h1>
+            <p class="rank-text">${rankInfo.text}</p>
+            <div class="breakdown">
+              <div class="stat"><b>${commonScore}/30</b><span>通识题</span></div>
+              <div class="stat"><b>${mixedScore}/20</b><span>混合题</span></div>
+              <div class="stat"><b>${laneScore}/50</b><span>${state.selectedLane}专项</span></div>
+            </div>
+            <p class="poster-note">长按或使用系统截图保存这张结果页。</p>
             <div class="quiz-actions">
               <button class="secondary" type="button" id="resultBtn">返回结算</button>
               <button class="primary" type="button" id="againBtn">重新抽题</button>
